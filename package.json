@@ -1,0 +1,19 @@
+{
+  "name": "io.pubstar.unity",
+  "version": "1.3.1",
+  "displayName": "PubStar SDK",
+  "description": "Ads SDK for Unity (iOS/Android).",
+  "unity": "2021.3",
+  "keywords": ["ads", "pubstar", "sdk"],
+  "author": {
+    "name": "PubStar",
+    "url": "https://pubstar.io/"
+  },
+  "samples": [
+    {
+      "displayName": "PubStar Demo",
+      "description": "Demo scene to test banner/native/interstitial/open/rewarded.",
+      "path": "Samples~/Driver"
+    }
+  ]
+}
