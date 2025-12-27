@@ -178,7 +178,7 @@ Load Pubstar ads by adId to application.
 
 #### Example
 
-```dart
+```C#
 PubStar.Load(
   "Interstitial Ad ID",
   onLoaded: () => Debug.Log($"[GAME] Interstitial Loaded: {interstitialAdID}"),
@@ -202,7 +202,7 @@ Show ad had loaded before.
 
 #### Example
 
-```dart
+```C#
 PubStar.Show(
   "Interstitial Ad ID",
   onShowed: () => Debug.Log($"[GAME] Interstitial Showed: {interstitialAdID}"),
@@ -288,7 +288,7 @@ Load video ad then show video ad, using for Video ad.
 
 #### Example
 
-```dart
+```C#
 NativeView native = new NativeView(
     nativeAdID,
     AdSize.Medium,

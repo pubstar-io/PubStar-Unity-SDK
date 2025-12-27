@@ -2,10 +2,11 @@ using System;
 using System.Threading;
 using PubStar.Io;
 using UnityEngine;
+using static PubStar.Io.PubStar;
 
 public class GameUIController : MonoBehaviour
 {
-    private PubStar.Io.PubStar.BannerView _banner;
+    private BannerView _banner;
 
     private string bannerAdID = "1687/99228314074";
     private string nativeAdID = "1687/99228314077";
@@ -15,7 +16,7 @@ public class GameUIController : MonoBehaviour
 
     private void RenderBannerAds()
     {
-        _banner = new PubStar.Io.PubStar.BannerView(
+        _banner = new BannerView(
             bannerAdID,
             AdSize.Medium,
             AdPosition.Center);
@@ -30,10 +31,10 @@ public class GameUIController : MonoBehaviour
         _banner.Show();
     }
 
-    private PubStar.Io.PubStar.NativeView _native;
+    private NativeView _native;
     private void RenderNativeAds()
     {
-        _native = new PubStar.Io.PubStar.NativeView(
+        _native = new NativeView(
             nativeAdID,
             AdSize.Medium,
             AdPosition.Bottom);
@@ -84,7 +85,7 @@ public class GameUIController : MonoBehaviour
     public void OnButtonInterstitialAdsClicked()
     {
         Debug.Log($"[GAME] Button Interstitial Ads clicked width adID: {interstitialAdID}");
-        PubStar.Io.PubStar.LoadAndShow(
+        LoadAndShow(
             interstitialAdID,
             onLoaded: () => Debug.Log($"[GAME] Interstitial Loaded: {interstitialAdID}"),
             onLoadError: err => Debug.LogError($"[GAME] Interstitial Load error: {err}"),
@@ -97,7 +98,7 @@ public class GameUIController : MonoBehaviour
     public void OnButtonOpenAdsClicked()
     {
         Debug.Log($"[GAME] Button Open Ads clicked with adID: {openAdID}");
-        PubStar.Io.PubStar.LoadAndShow(
+        LoadAndShow(
             openAdID,
             onLoaded: () => Debug.Log($"[GAME] Open Loaded: {openAdID}"),
             onLoadError: err => Debug.LogError($"[GAME] Open Load error: {err}"),
@@ -110,7 +111,7 @@ public class GameUIController : MonoBehaviour
     public void OnButtonRewardedAdsClicked()
     {
         Debug.Log($"[GAME] Button Rewarded Ads clicked with adID: {rewardedAdID}");
-        PubStar.Io.PubStar.LoadAndShow(
+        LoadAndShow(
             rewardedAdID,
             onLoaded: () => Debug.Log($"[GAME] Rewarded Loaded: {rewardedAdID}"),
             onLoadError: err => Debug.LogError($"[GAME] Rewarded Load error: {err}"),
