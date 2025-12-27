@@ -245,13 +245,12 @@ Load ad then show ad, using for Banner ad and Native ad.
 #### API
 
 | Props      | Function                                                                                                             |
-| ---------- | -------------------------------------------------------------------------------------------------------------------- |
-| `adId`     | id of Banner                                                                                                         |
-| `AdSize`   | size of ad View. (`small`, `medium`, `large`)                                                                        |
-| `OnError`  | call when show ad failed. return Error code                                                                          |
-| `OnHidden`   | call when ad hidden/closed (supports rewarded ads). Returns detailed `PubstarReward` JSON string (`type`, `amount`). |
-| `OnLoaded` | call when ad loaded                                                                                                  |
-| `OnShowed` | call when ad showed                                                                                                  |
+| ------------- | -------------------------------------------------------------------------------------------------------------------- |
+| `onLoaded`    | call when ad loaded                                                                                                  |
+| `onLoadError` | call when load ad failed. return Error code                                                                          |
+| `onShowed`    | call when ad showed                                                                                                  |
+| `onHidden`    | call when ad hidden/closed (supports rewarded ads). Returns detailed `PubstarReward` JSON string (`type`, `amount`). |
+| `onShowError` | call when show ad failed. return Error code                                                                          |
 
 #### Example
 
@@ -278,13 +277,12 @@ Load video ad then show video ad, using for Video ad.
 #### API
 
 | Props      | Function                                                                                                             |
-| ---------- | -------------------------------------------------------------------------------------------------------------------- |
-| `adId`     | id of Native                                                                                                         |
-| `AdSize`   | size of ad View. (`small`, `medium`, `large`)                                                                        |
-| `OnError`  | call when show ad failed. return Error code                                                                          |
-| `OnHidden`   | call when ad hidden/closed (supports rewarded ads). Returns detailed `PubstarReward` JSON string (`type`, `amount`). |
-| `OnLoaded` | call when ad loaded                                                                                                  |
-| `OnShowed` | call when ad showed                                                                                                  |
+| ------------- | -------------------------------------------------------------------------------------------------------------------- |
+| `onLoaded`    | call when ad loaded                                                                                                  |
+| `onLoadError` | call when load ad failed. return Error code                                                                          |
+| `onShowed`    | call when ad showed                                                                                                  |
+| `onHidden`    | call when ad hidden/closed (supports rewarded ads). Returns detailed `PubstarReward` JSON string (`type`, `amount`). |
+| `onShowError` | call when show ad failed. return Error code                                                                          |
 
 #### Example
 
