@@ -93,27 +93,91 @@ void pubstar_initialize(const char *gameObjectName) {
 }
 
 void pubstar_load(const char *placementId) {
+    if (!placementId)
+        return;
+
+    NSString *adId = [NSString stringWithUTF8String:placementId];
+
+    PubstarImpl *impl = GetModuleImpl();
+    if (!impl)
+        return;
+
+    [impl loadAdWithAdId:adId
+        onLoaded:^() {
+          NSLog(@"[PubstarNative] pubstar_load_and_show onLoaded called");
+
+          PubstarUnitySendMessage(@"OnPubstarLoaded", adId);
+        }
+        onError:^(NSInteger errorCode) {
+          NSString *msg = [NSString stringWithFormat:@"%ld", (long)errorCode];
+          NSLog(@"[PubstarNative] pubstar_load onLoadedError called "
+                @"message %s",
+                msg.UTF8String);
+
+          PubstarUnitySendMessage(@"OnPubstarLoadError", msg);
+        }];
+
     @autoreleasepool {
         NSString *nsPlacement =
             placementId ? [NSString stringWithUTF8String:placementId]
                         : @"(null)";
-        NSLog(@"[PubstarNativeFake] loadAd called with placementId = %@",
+        NSLog(@"[PubstarNative] loadAd called with placementId = %@",
               nsPlacement);
     }
 }
 
 void pubstar_show(const char *placementId) {
+    if (!placementId)
+        return;
+
+    NSString *adId = [NSString stringWithUTF8String:placementId];
+
+    PubstarImpl *impl = GetModuleImpl();
+    if (!impl)
+        return;
+    
+    [impl showAdWithAdId:adId onHide:^(NSDictionary<NSString *, id> *_Nullable payload) {
+        NSLog(@"[PubstarNative] pubstar_show onHide called");
+
+        NSString *payloadString = @"";
+        if (payload && [NSJSONSerialization isValidJSONObject:payload]) {
+            NSError *error = nil;
+            NSData *jsonData =
+                [NSJSONSerialization dataWithJSONObject:payload
+                                                options:0
+                                                  error:&error];
+            if (!error && jsonData) {
+                payloadString =
+                    [[NSString alloc] initWithData:jsonData
+                                          encoding:NSUTF8StringEncoding];
+            }
+        }
+        PubstarUnitySendMessage(@"OnPubstarAdHidden", payloadString);
+    } onShowed:^() {
+        NSLog(
+            @"[PubstarNative] pubstar_show onShowed called");
+
+        PubstarUnitySendMessage(@"OnPubstarAdShowed", @"");
+    } onError:^(NSInteger errorCode) {
+        NSString *msg = [NSString stringWithFormat:@"%ld", (long)errorCode];
+        NSLog(@"[PubstarNative] pubstar_show onError "
+              @"called message %s",
+              msg.UTF8String);
+
+        PubstarUnitySendMessage(@"OnPubstarShowError", msg);
+    }];
+    
     @autoreleasepool {
         NSString *nsPlacement =
             placementId ? [NSString stringWithUTF8String:placementId]
                         : @"(null)";
-        NSLog(@"[PubstarNativeFake] showAd called with placementId = %@",
+        NSLog(@"[PubstarNative] showAd called with placementId = %@",
               nsPlacement);
 
         dispatch_after(
             dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2 * NSEC_PER_SEC)),
             dispatch_get_main_queue(), ^{
-              NSLog(@"[PubstarNativeFake] pretend ad finished showing for %@",
+              NSLog(@"[PubstarNative] pretend ad finished showing for %@",
                     nsPlacement);
             });
     }
@@ -122,6 +186,7 @@ void pubstar_show(const char *placementId) {
 void pubstar_load_and_show(const char *placementId) {
     if (!placementId)
         return;
+
     NSString *adId = [NSString stringWithUTF8String:placementId];
 
     PubstarImpl *impl = GetModuleImpl();
@@ -132,7 +197,7 @@ void pubstar_load_and_show(const char *placementId) {
         onLoadedError:^(NSInteger errorCode) {
           NSString *msg = [NSString stringWithFormat:@"%ld", (long)errorCode];
           NSLog(@"[PubstarNative] pubstar_load_and_show onLoadedError called "
-                @"mesage %s",
+                @"message %s",
                 msg.UTF8String);
 
           PubstarUnitySendMessage(@"OnPubstarLoadError", msg);
@@ -305,7 +370,8 @@ void pubstar_destroy_ad_view(const char *viewId) {
     });
 }
 
-void pubstar_show_banner_in_view(const char *viewId, const char *placementId, const char *size) {
+void pubstar_show_banner_in_view(const char *viewId, const char *placementId,
+                                 const char *size) {
     if (!viewId || !placementId)
         return;
 
@@ -337,7 +403,7 @@ void pubstar_show_banner_in_view(const char *viewId, const char *placementId, co
           onLoaderError:^(NSInteger errorCode) {
             NSString *msg = [NSString stringWithFormat:@"%ld", (long)errorCode];
             NSLog(@"[PubstarNative] pubstar_show_banner_in_view onLoadedError "
-                  @"called mesage %s",
+                  @"called message %s",
                   msg.UTF8String);
 
             PubstarUnitySendMessage(@"OnPubstarLoadError", msg);
@@ -357,11 +423,11 @@ void pubstar_show_banner_in_view(const char *viewId, const char *placementId, co
                 NSData *jsonData =
                     [NSJSONSerialization dataWithJSONObject:payload
                                                     options:0
-                                                    error:&error];
+                                                      error:&error];
                 if (!error && jsonData) {
                     payloadString =
                         [[NSString alloc] initWithData:jsonData
-                                            encoding:NSUTF8StringEncoding];
+                                              encoding:NSUTF8StringEncoding];
                 }
             }
             PubstarUnitySendMessage(@"OnPubstarAdHidden", payloadString);
@@ -383,10 +449,11 @@ void pubstar_show_banner_in_view(const char *viewId, const char *placementId, co
     });
 }
 
-void pubstar_show_native_in_view(const char *viewId, const char *placementId, const char *size) {
+void pubstar_show_native_in_view(const char *viewId, const char *placementId,
+                                 const char *size) {
     if (!viewId || !placementId)
         return;
-    
+
     NSString *vid = [NSString stringWithUTF8String:viewId];
     NSString *adId = [NSString stringWithUTF8String:placementId];
     NSString *sizeString = [NSString stringWithUTF8String:size];
@@ -415,7 +482,7 @@ void pubstar_show_native_in_view(const char *viewId, const char *placementId, co
           onLoaderError:^(NSInteger errorCode) {
             NSString *msg = [NSString stringWithFormat:@"%ld", (long)errorCode];
             NSLog(@"[PubstarNative] pubstar_show_native_in_view onLoadedError "
-                  @"called mesage %s",
+                  @"called message %s",
                   msg.UTF8String);
 
             PubstarUnitySendMessage(@"OnPubstarLoadError", msg);
@@ -435,11 +502,11 @@ void pubstar_show_native_in_view(const char *viewId, const char *placementId, co
                 NSData *jsonData =
                     [NSJSONSerialization dataWithJSONObject:payload
                                                     options:0
-                                                    error:&error];
+                                                      error:&error];
                 if (!error && jsonData) {
                     payloadString =
                         [[NSString alloc] initWithData:jsonData
-                                            encoding:NSUTF8StringEncoding];
+                                              encoding:NSUTF8StringEncoding];
                 }
             }
             PubstarUnitySendMessage(@"OnPubstarAdHidden", payloadString);
@@ -450,7 +517,7 @@ void pubstar_show_native_in_view(const char *viewId, const char *placementId, co
 
             PubstarUnitySendMessage(@"OnPubstarAdShowed", vid);
           }
-          onShowedError:^(NSInteger errorCode){
+          onShowedError:^(NSInteger errorCode) {
             NSString *msg = [NSString stringWithFormat:@"%ld", (long)errorCode];
             NSLog(@"[PubstarNative] pubstar_show_native_in_view onShowedError "
                   @"called message %s",
