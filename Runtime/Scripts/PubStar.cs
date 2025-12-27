@@ -117,6 +117,45 @@ namespace PubStar.Io
 #endif
         }
 
+        internal static void Load(
+            string placementId,
+            Action onLoaded,
+            Action<int> onError
+        )
+        {
+            _onLoaded = onLoaded;
+            _onLoadError = onError;   
+
+#if !UNITY_EDITOR && (UNITY_ANDROID || UNITY_IOS)
+            Native.Load(placementId);
+#else
+            Debug.Log($"[PubStarBridge] Load simulate in editor. placementId={placementId}");
+            onLoaded?.Invoke();
+            onError?.Invoke(0);
+#endif
+        }
+
+        internal static void Show(
+            string placementId,
+            Action onShowed,
+            Action<string> onHidden,
+            Action<int> onError
+        )
+        {
+            _onAdShowed = onShowed;
+            _onAdHidden = onHidden;
+            _onShowError = onError;
+
+#if !UNITY_EDITOR && (UNITY_ANDROID || UNITY_IOS)
+            Native.Show(placementId);
+#else
+            Debug.Log($"[PubStarBridge] Show simulate in editor. placementId={placementId}");
+            onShowed?.Invoke();
+            onHidden?.Invoke("{}");
+            onError?.Invoke(0);
+#endif
+        }
+
         internal static void LoadAndShow(
             string placementId,
             Action onLoaded,
