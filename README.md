@@ -37,8 +37,12 @@ PubStar Mobile AD SDK is a comprehensive software development kit designed to em
 
 ### Import from GitHub
 
-1. Download the latest .unitypackage release from GitHub.
-2. Import the .unitypackage file by selecting the Unity menu option **Assets > Import package > Custom Package** and importing all items.
+1. **Open your Unity Project** in the Unity Editor.
+2. Navigate to the **Package Manager** by selecting `Window` > `Package Manager`
+3. In the top-left corner of the Package Manager window, click the + **(Add)** button.
+4. Select **Add package from git URL...** from the dropdown menu.
+5. Enter the Git URL of the SDK repository into the text box. The URL usually ends with `.git`.
+6. Click the **Add** button and wait for Unity to download and install the package.
 
 ## Configuration
 
