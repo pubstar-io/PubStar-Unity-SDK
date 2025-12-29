@@ -181,7 +181,7 @@ Load Pubstar ads by adId to application.
 ```C#
 PubStar.Load(
   "Interstitial Ad ID",
-  onLoaded: () => Debug.Log($"[GAME] Interstitial Loaded: {interstitialAdID}"),
+  onLoaded: () => Debug.Log($"[GAME] Interstitial Loaded"),
   onError: err => Debug.LogError($"[GAME] Interstitial Load error: {err}")
 );
 ```
@@ -205,7 +205,7 @@ Show ad had loaded before.
 ```C#
 PubStar.Show(
   "Interstitial Ad ID",
-  onShowed: () => Debug.Log($"[GAME] Interstitial Showed: {interstitialAdID}"),
+  onShowed: () => Debug.Log($"[GAME] Interstitial Showed"),
   onHidden: payloadJson => Debug.Log($"[GAME] Interstitial Hidden payload: {payloadJson}"),
   onError: err => Debug.LogError($"[GAME] Interstitial Show error: {err}")
 );
@@ -230,9 +230,9 @@ Load and immediately show an ad by ID.
 ```C#
 PubStar.LoadAndShow(
   "Interstitial Ad ID",
-  onLoaded: () => Debug.Log($"[GAME] Interstitial Loaded: {interstitialAdID}"),
+  onLoaded: () => Debug.Log($"[GAME] Interstitial Loaded"),
   onLoadError: err => Debug.LogError($"[GAME] Interstitial Load error: {err}"),
-  onShowed: () => Debug.Log($"[GAME] Interstitial Showed: {interstitialAdID}"),
+  onShowed: () => Debug.Log($"[GAME] Interstitial Showed"),
   onHidden: payloadJson => Debug.Log($"[GAME] Interstitial Hidden payload: {payloadJson}"),
   onShowError: err => Debug.LogError($"[GAME] Interstitial Show error: {err}")
 );
