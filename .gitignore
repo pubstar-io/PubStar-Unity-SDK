@@ -103,9 +103,9 @@
 
 # Samples project
 # Samples/
-Samples/BuildiOS/
-Samples/BuildAndroid/
-Samples/Frameworks/
+Samples~/BuildiOS/
+Samples~/BuildAndroid/
+Samples~/Frameworks/
 # Samples/Driver/Temp
 # Samples/Driver/Library/
 # Samples/Driver/Logs/
