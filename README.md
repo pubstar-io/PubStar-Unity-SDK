@@ -54,9 +54,9 @@ PubStar Mobile AD SDK is a comprehensive software development kit designed to em
 
 2. Install the dependencies using pod install.
 
-```bash
-pod install
-```
+    ```bash
+    pod install
+    ```
 
 3. Open your project in Xcode with the .xcworkspace file.
 
@@ -312,7 +312,7 @@ See the [CHANGELOG.md](https://github.com/pubstar-io/flutter-sdk/blob/main/CHANG
 
 ## ID Test AD
 
-```python
+```C#
 App ID : pub-app-id-1233
 Banner Id : 1233/99228313580
 Native ID : 1233/99228313581
