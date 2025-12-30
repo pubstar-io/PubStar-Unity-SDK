@@ -85,14 +85,21 @@ public class GameUIController : MonoBehaviour
     public void OnButtonInterstitialAdsClicked()
     {
         Debug.Log($"[GAME] Button Interstitial Ads clicked width adID: {interstitialAdID}");
-        LoadAndShow(
+        Load(
             interstitialAdID,
-            onLoaded: () => Debug.Log($"[GAME] Interstitial Loaded: {interstitialAdID}"),
-            onLoadError: err => Debug.LogError($"[GAME] Interstitial Load error: {err}"),
-            onShowed: () => Debug.Log($"[GAME] Interstitial Showed: {interstitialAdID}"),
-            onHidden: payloadJson => Debug.Log($"[GAME] Interstitial Hidden payload: {payloadJson}"),
-            onShowError: err => Debug.LogError($"[GAME] Interstitial Show error: {err}")
-        );
+            onLoaded: () =>
+            {
+                Debug.Log($"[GAME] Interstitial Loaded: {interstitialAdID}");
+
+                Show(
+                    interstitialAdID,
+                    onShowed: () => Debug.Log($"[GAME] Interstitial Showed: {interstitialAdID}"),
+                    onHidden: payloadJson => Debug.Log($"[GAME] Interstitial Hidden payload: {payloadJson}"),
+                    onError: err => Debug.LogError($"[GAME] Interstitial Show error: {err}")
+                    );
+            },
+            onError: err => Debug.LogError($"[GAME] Interstitial Load error: {err}")
+            );
     }
 
     public void OnButtonOpenAdsClicked()
