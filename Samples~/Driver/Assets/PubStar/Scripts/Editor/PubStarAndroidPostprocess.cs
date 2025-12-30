@@ -194,7 +194,7 @@ namespace PubStar.Editor
 
             // Build meta-data line (single line, as you requested)
             var metaLine = $"<meta-data android:name=\"com.google.android.gms.ads.APPLICATION_ID\" android:value=\"{AdmobAppId}\"/>\n" 
-            + "<meta-data android:name=\"io.pubstar.key\" android:value=\"pub-app-id-1692\" />";
+            + "<meta-data android:name=\"io.pubstar.key\" android:value=\"Your PubStar app ID\" />";
 
             string updated;
 
