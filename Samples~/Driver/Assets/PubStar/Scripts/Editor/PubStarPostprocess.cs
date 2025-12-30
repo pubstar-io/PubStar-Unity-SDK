@@ -8,7 +8,7 @@ using UnityEditor.iOS.Xcode;
 public static class PubStarPodPostprocess
 {
     private const string PodName = "Pubstar";
-    private const string PodVersion = ":path => '../Frameworks'";
+    private const string PodVersion = "'~> 1.3.1'";
     private static readonly string[] SkAdNetworkIds =
     {
         "cstr6suwn9.skadnetwork",
@@ -93,7 +93,7 @@ public static class PubStarPodPostprocess
             "We use your data to show personalized ads and improve your experience."
         );
 
-        root.SetString("io.pubstar.key", "pub-app-id-1687");
+        root.SetString("io.pubstar.key", "Your PubStar app ID");
 
         root.SetString(
             "GADApplicationIdentifier",
@@ -211,80 +211,4 @@ end
     }
 }
 
-// public static class PubStarPodPostprocess
-// {
-//     private const string PodName = "Pubstar";
-//     private const string PodVersion = "~> 1.3.1";
-
-
-//     [PostProcessBuild(40)]
-//     public static void OnPostProcessBuild(BuildTarget buildTarget, string pathToBuiltProject)
-//     {
-//         if (buildTarget != BuildTarget.iOS)
-//             return;
-
-//         string podfilePath = Path.Combine(pathToBuiltProject, "Podfile");
-
-//         if (!File.Exists(podfilePath))
-//         {
-//             Debug.Log("[PubStar] Podfile not found. Creating a default Podfile...");
-
-//             string defaultPodfile = @"
-// platform :ios, '13.0'
-
-// target 'Unity-iPhone' do
-//   use_frameworks!
-// end
-
-// target 'UnityFramework' do
-//   use_frameworks!
-// end
-// ";
-
-//             File.WriteAllText(podfilePath, defaultPodfile);
-//         }
-
-//         string podfile = File.ReadAllText(podfilePath);
-//         bool modified = false;
-
-//         if (!podfile.Contains("pod 'Pubstar'"))
-//         {
-//             string podLine = $"pod '{PodName}', '{PodVersion}'";
-
-//             modified |= InsertPodIntoTarget(ref podfile, "Unity-iPhone", podLine);
-//             modified |= InsertPodIntoTarget(ref podfile, "UnityFramework", podLine);
-//         }
-//         else
-//         {
-//             Debug.Log("[PubStar] Podfile already contains 'Pubstar'.");
-//         }
-
-//         if (modified)
-//         {
-//             File.WriteAllText(podfilePath, podfile);
-//             Debug.Log("[PubStar] Podfile updated with Pubstar pod.");
-//         }
-//     }
-
-//     private static bool InsertPodIntoTarget(ref string podfile, string targetName, string podLine)
-//     {
-//         string targetMarker = $"target '{targetName}' do";
-//         int index = podfile.IndexOf(targetMarker, System.StringComparison.Ordinal);
-//         if (index < 0)
-//         {
-//             Debug.LogWarning($"[PubStar] Could not find target '{targetName}' in Podfile.");
-//             return false;
-//         }
-
-//         int insertPos = podfile.IndexOf('\n', index + targetMarker.Length);
-//         if (insertPos < 0)
-//             insertPos = podfile.Length;
-
-//         string insertText = $"\n  {podLine}\n";
-//         podfile = podfile.Insert(insertPos, insertText);
-
-//         Debug.Log($"[PubStar] Added '{podLine}' to target '{targetName}' in Podfile.");
-//         return true;
-//     }
-// }
 #endif
