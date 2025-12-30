@@ -328,4 +328,4 @@ Raise an issue on GitHub for bugs or feature requests.
 
 Pubstar is released under the [Apache License 2.0](https://choosealicense.com/licenses/apache-2.0/).
 
-License agreement is available at [LICENSE](LICENSE).
+License agreement is available at [LICENSE](https://github.com/pubstar-io/PubStar-Unity-SDK/blob/main/LICENSE.md).
