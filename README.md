@@ -304,7 +304,7 @@ native.Show();
 
 ## Release Notes
 
-See the [CHANGELOG.md](https://github.com/pubstar-io/flutter-sdk/blob/main/CHANGELOG.md).
+See the [CHANGELOG.md](https://github.com/pubstar-io/PubStar-Unity-SDK/blob/main/CHANGELOG.md).
 
 ## ID Test AD
 
