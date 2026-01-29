@@ -19,6 +19,9 @@ import io.pubstar.mobile.core.interfaces.InitAdListener;
 import io.pubstar.mobile.core.interfaces.PubStarAdController;
 import io.pubstar.mobile.core.models.ErrorCode;
 import io.pubstar.mobile.core.models.RewardModel;
+import io.pubstar.mobile.core.utils.GoogleMobileAdsConsentManager;
+
+import com.google.android.ump.FormError;
 
 import android.os.Handler;
 import android.util.TypedValue;
@@ -188,9 +191,11 @@ public class PubStarUnityBridge {
         };
 
         runOnMainThread(() -> {
-            PubStarAdManager.getInstance()
-                    .setInitAdListener(listener)
-                    .init(appContext);
+            PubStarAdManager.gatherConsent(
+                    (Activity) appContext,
+                    formError -> PubStarAdManager.getInstance()
+                            .setInitAdListener(listener)
+                            .init(appContext));
         });
     }
 
@@ -422,7 +427,7 @@ public class PubStarUnityBridge {
                 if (container == null) {
                     container = new FrameLayout(activity);
                     container.setLayoutParams(layoutParams);
-                     container.setBackgroundColor(0x00000000); // transparent
+                    container.setBackgroundColor(0x00000000); // transparent
 //                    container.setBackgroundColor(Color.RED);
                     container.setClickable(true);
                     container.setFocusable(true);
@@ -659,14 +664,14 @@ public class PubStarUnityBridge {
     }
 
     public static void destroyAdView(String viewId) {
-        if(viewId == null || viewId.trim().isEmpty()) {
+        if (viewId == null || viewId.trim().isEmpty()) {
             return;
         }
 
         runOnMainThread(() -> {
             ViewGroup adView = sContainers.get(viewId);
 
-            if(adView == null) {
+            if (adView == null) {
                 return;
             }
 

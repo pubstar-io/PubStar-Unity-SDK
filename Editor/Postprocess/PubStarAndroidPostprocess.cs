@@ -11,7 +11,7 @@ namespace PubStar.Editor
         public int callbackOrder => 0;
 
         // ===== Config =====
-        private const string AppodealMavenRepoLine = "maven { url \"https://artifactory.appodeal.com/appodeal\" }";
+        // private const string AppodealMavenRepoLine = "maven { url \"https://artifactory.appodeal.com/appodeal\" }";
         private const string AdmobAppId = "ca-app-pub-3940256099942544~3347511713";
 
         private static UTF8Encoding utf8NoBom = new UTF8Encoding(false);
@@ -22,7 +22,7 @@ namespace PubStar.Editor
             {
                 var gradleRoot = ResolveGradleRoot(path);
                 UnityEngine.Debug.LogError("[PubStar][AndroidPostprocess] OnPostGenerateGradleAndroidProject: " + gradleRoot);
-                PatchSettingsGradle(gradleRoot);
+                // PatchSettingsGradle(gradleRoot);
                 PatchAndroidManifest(gradleRoot);
             }
             catch (Exception e)
@@ -61,50 +61,50 @@ namespace PubStar.Editor
         // =========================
         // 1) settings.gradle
         // =========================
-        private static void PatchSettingsGradle(string gradleProjectPath)
-        {
-            var settingsPath = FindFirstExistingFile(
-                gradleProjectPath,
-                "settings.gradle",
-                "settings.gradle.kts"
-            );
+        // private static void PatchSettingsGradle(string gradleProjectPath)
+        // {
+        //     var settingsPath = FindFirstExistingFile(
+        //         gradleProjectPath,
+        //         "settings.gradle",
+        //         "settings.gradle.kts"
+        //     );
 
-            if (settingsPath == null)
-            {
-                UnityEngine.Debug.LogWarning("[PubStar][AndroidPostprocess] settings.gradle not found.");
-                return;
-            }
+        //     if (settingsPath == null)
+        //     {
+        //         UnityEngine.Debug.LogWarning("[PubStar][AndroidPostprocess] settings.gradle not found.");
+        //         return;
+        //     }
 
-            var text = File.ReadAllText(settingsPath, Encoding.UTF8);
-            if (text.Contains(AppodealMavenRepoLine))
-            {
-                UnityEngine.Debug.Log("[PubStar][AndroidPostprocess] Appodeal repo already exists in settings.gradle");
-                return;
-            }
+        //     var text = File.ReadAllText(settingsPath, Encoding.UTF8);
+        //     if (text.Contains(AppodealMavenRepoLine))
+        //     {
+        //         UnityEngine.Debug.Log("[PubStar][AndroidPostprocess] Appodeal repo already exists in settings.gradle");
+        //         return;
+        //     }
 
-            // Prefer to inject inside:
-            // dependencyResolutionManagement { repositories { ... } }
-            // If not found, we fall back to injecting into an existing repositories { } (best effort).
-            var updated = TryInsertIntoDependencyResolutionManagementRepositories(text, AppodealMavenRepoLine);
-            if (updated == null)
-            {
-                updated = TryInsertIntoAnyRepositoriesBlock(text, AppodealMavenRepoLine);
-            }
+        //     // Prefer to inject inside:
+        //     // dependencyResolutionManagement { repositories { ... } }
+        //     // If not found, we fall back to injecting into an existing repositories { } (best effort).
+        //     var updated = TryInsertIntoDependencyResolutionManagementRepositories(text, AppodealMavenRepoLine);
+        //     if (updated == null)
+        //     {
+        //         updated = TryInsertIntoAnyRepositoriesBlock(text, AppodealMavenRepoLine);
+        //     }
 
-            if (updated == null)
-            {
-                // Last resort: append a proper block to the end (still valid, but may not be desired)
-                updated = text.TrimEnd() +
-                          "\n\ndependencyResolutionManagement {\n" +
-                          "    repositories {\n" +
-                          "        " + AppodealMavenRepoLine + "\n" +
-                          "    }\n" +
-                          "}\n";
-            }
+        //     if (updated == null)
+        //     {
+        //         // Last resort: append a proper block to the end (still valid, but may not be desired)
+        //         updated = text.TrimEnd() +
+        //                   "\n\ndependencyResolutionManagement {\n" +
+        //                   "    repositories {\n" +
+        //                   "        " + AppodealMavenRepoLine + "\n" +
+        //                   "    }\n" +
+        //                   "}\n";
+        //     }
 
-            File.WriteAllText(settingsPath, updated, utf8NoBom);
-            UnityEngine.Debug.Log("[PubStar][AndroidPostprocess] Patched settings.gradle: added Appodeal repo");
-        }
+        //     File.WriteAllText(settingsPath, updated, utf8NoBom);
+        //     UnityEngine.Debug.Log("[PubStar][AndroidPostprocess] Patched settings.gradle: added Appodeal repo");
+        // }
 
         private static string TryInsertIntoDependencyResolutionManagementRepositories(string text, string lineToInsert)
         {

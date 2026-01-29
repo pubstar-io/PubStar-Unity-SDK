@@ -8,7 +8,7 @@ using UnityEditor.iOS.Xcode;
 public static class PubStarPodPostprocess
 {
     private const string PodName = "Pubstar";
-    private const string PodVersion = "'~> 1.3.1'";
+    private const string PodVersion = "'~> 1.5.0'";
     private static readonly string[] SkAdNetworkIds =
     {
         "cstr6suwn9.skadnetwork",
