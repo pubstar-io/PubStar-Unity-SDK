@@ -32,6 +32,7 @@ PubStar Mobile AD SDK is a comprehensive software development kit designed to em
 
 - iOS >= 13.0
 - Android >= 26
+- Android >= 23
 
 ## Installation
 
