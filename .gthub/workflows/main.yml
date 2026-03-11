@@ -1,0 +1,88 @@
+name: Release PubStar UnityPackage
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Lấy version từ package.json bằng jq
+        id: pubspec
+        run: |
+          # Đọc file package.json và lấy raw text của trường version
+          EXTRACTED_VERSION=$(jq -r .version package.json)
+          EXTRACTED_PACKAGE=$(jq -r .version package.json)
+          
+          # Lưu vào GitHub Environment Variables để dùng ở các bước sau
+          echo "version=$EXTRACTED_VERSION" >> $GITHUB_ENV
+          echo "tag=v$EXTRACTED_VERSION" >> $GITHUB_ENV
+          echo "package=v$EXTRACTED_PACKAGE" >> $GITHUB_ENV
+
+      - name: Check if Tag exists
+        id: check_tag
+        env:
+          GITHUB_TOKEN: ${{ secrets.RELEASE_SDK_IOS }}
+        run: |
+          TAG_NAME="${{ steps.pubspec.outputs.tag }}"
+          REMOTE_REPO="pubstar-io/PubStar-Unity-SDK"
+
+          echo "Checking tag $TAG_NAME on $REMOTE_REPO..."
+
+          if gh api repos/$REMOTE_REPO/git/ref/tags/$TAG_NAME >/dev/null 2>&1; then
+            echo "Tag $TAG_NAME already exists. Skipping publish to avoid error."
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "Tag $TAG_NAME is not exists."
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Request manual activation file
+        id: getManualLicenseFile
+        uses: game-ci/unity-request-activation-file@v2
+        
+      - name: Expose as artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ steps.getManualLicenseFile.outputs.filePath }}
+          path: ${{ steps.getManualLicenseFile.outputs.filePath }}
+
+      - name: Build .unitypackage via Driver Project
+        uses: game-ci/unity-custom-command@v3
+        if: steps.check_tag.outputs.exists == 'false'
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          projectPath: Samples~/Driver
+          command: -exportPackage "Packages/${{ steps.pubspec.outputs.tag }}" "../../PubStar.unitypackage" -nographics -batchmode -quit
+
+      - name: Zip project source code using git
+        id: zip_step
+        if: steps.check_tag.outputs.exists == 'false'
+        run: |
+          ZIP_NAME="Pubstar.zip"
+
+          git archive -o $ZIP_NAME HEAD
+          echo "zip_file=$ZIP_NAME" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release and upload asset
+        if: steps.check_tag.outputs.exists == 'false'
+        uses: softprops/action-gh-release@v2
+        with:
+          repository: pubstar-io/PubStar-Unity-SDK
+          tag_name: ${{ steps.pubspec.outputs.tag }}
+          target_commitish: main
+          name: ${{ steps.pubspec.outputs.version }}
+          generate_release_notes: true
+          files: |
+            ${{ steps.zip_project.outputs.zip_file }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.RELEASE_SDK_IOS }}
