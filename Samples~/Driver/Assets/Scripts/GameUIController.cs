@@ -34,10 +34,24 @@ public class GameUIController : MonoBehaviour
     private NativeView _native;
     private void RenderNativeAds()
     {
+        var customConfig = new NativeCustomConfig.Builder("AppAdmobNativeCustom")
+                .SetAdvertiserTextViewId("1")
+                .SetIconImageViewId("2")
+                .SetTitleTextViewId("3")
+                .SetMediaContentViewGroupId("4")
+                .SetBodyTextViewId("5")
+                .SetCallToActionButtonId("6")
+                .SetCtaColorHex("#FFFFFF")
+                .SetLoadingViewName("AppShimmerBanner")
+                .Build();
+
+        Debug.Log($"[TEST][RenderNativeAds] customConfig is {customConfig.ToString()}");
         _native = new NativeView(
             nativeAdID,
-            AdSize.Medium,
-            AdPosition.Bottom);
+            AdSize.Large,
+            AdPosition.Bottom,
+            customConfig
+        );
         _native.OnLoaded += () =>
         {
             Debug.Log($"[GAME] Native Ad was Loaded with id({nativeAdID})");
