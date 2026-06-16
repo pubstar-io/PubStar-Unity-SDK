@@ -227,7 +227,6 @@ public final class PubstarAdManagerWrapper: NSObject {
         adId: String,
         view: UIView? = nil,
         media: String,
-        type: IMARequest.IMAType,
         onLoaderError: @escaping (ErrorCode) -> Void,
         onLoaded: @escaping () -> Void,
         onHide: @escaping (RewardModel?) -> Void,
@@ -256,14 +255,17 @@ public final class PubstarAdManagerWrapper: NSObject {
 
         let request = IMARequest.Builder(context: _context!)
             .withView(view)
-            .withSize(IMARequest.IMASize.medium)
-            .withType(type)
             .adLoaderListener(adNetLoaderListener)
             .adShowedListener(adNetShowListener)
 
-        if type == .inStream {
+        if media != "" {
             let player = self.createPlayerVideo(url: media)
-            let _ = request.withMedia(player)
+            let _ = request.withMedia(player).withType(
+                IMARequest.IMAType.inStream
+            )
+        } else {
+            let _ = request.withType(IMARequest.IMAType.outStream)
+                .withSize(IMARequest.IMASize.medium)
         }
 
         _pubStarAdController.loadAndShow(

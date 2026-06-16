@@ -34,8 +34,8 @@ namespace PubStar.Io
         public void ShowNativeInView(string viewId, string placementId, string size, string customConfig)
             => pubstar_show_native_in_view(viewId, placementId, size, customConfig);
 
-        public void ShowVideoInView(string viewId, string placementId, string size)
-            => pubstar_show_video_in_view(viewId, placementId, size);
+        public void ShowVideoInView(string viewId, string placementId, string media)
+            => pubstar_show_video_in_view(viewId, placementId, media);
     }
 }
 #endif

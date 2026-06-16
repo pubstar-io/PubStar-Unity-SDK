@@ -215,7 +215,7 @@ extension String {
     @objc public func loadAndShowVideoAd(
         adId: String,
         view: UIView? = nil,
-        size: String,
+        media: String,
         onLoaderError: @escaping (Int) -> Void,
         onLoaded: @escaping () -> Void,
         onHide: @escaping ([String: Any]?) -> Void,
@@ -225,8 +225,7 @@ extension String {
         PubstarAdManagerWrapper.loadAndShowVideoAd(
             adId: adId,
             view: view,
-            media: "",
-            type: IMARequest.IMAType.outStream,
+            media: media,
             onLoaderError: { errorCode in
                 onLoaderError(errorCode.rawValue)
             },

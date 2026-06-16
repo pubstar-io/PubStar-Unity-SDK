@@ -70,7 +70,8 @@ public class GameUIController : MonoBehaviour
         _video = new VideoView(
             videoAdID,
             AdSize.Large,
-            AdPosition.Bottom
+            AdPosition.Bottom,
+            "https://storage.googleapis.com/gvabox/media/samples/stock.mp4"
         );
         _video.OnLoaded += () =>
         {

@@ -13,6 +13,6 @@ namespace PubStar.Io
         void DestroyAdView(string viewId);
         void ShowBannerInView(string viewId, string placementId, string size);
         void ShowNativeInView(string viewId, string placementId, string size, string customConfig);
-        void ShowVideoInView(string viewId, string placementId, string size);
+        void ShowVideoInView(string viewId, string placementId, string media);
     }
 }

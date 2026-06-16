@@ -251,7 +251,7 @@ namespace PubStar.Io
         }
 
         private static void ShowVideoInView(
-            string viewId, string placementId, string size,
+            string viewId, string placementId, string media,
             Action onLoaded, 
             Action<int> onLoadError,
             Action onShowed, 
@@ -270,7 +270,7 @@ namespace PubStar.Io
 
 #if !UNITY_EDITOR && (UNITY_ANDROID || UNITY_IOS)
             Debug.Log($"[TEST][PubStarBridge] ShowVideoInView (Editor) viewId={viewId}");
-            Native.ShowVideoInView(viewId, placementId, size);
+            Native.ShowVideoInView(viewId, placementId, media);
 #else
             Debug.Log($"[PubStarBridge] ShowVideoInView (Editor) viewId={viewId}");
             onLoaded?.Invoke();
@@ -290,7 +290,7 @@ namespace PubStar.Io
             public void DestroyAdView(string viewId) { }
             public void ShowBannerInView(string viewId, string placementId, string size) { }
             public void ShowNativeInView(string viewId, string placementId, string size, string customConfig) { }
-            public void ShowVideoInView(string viewId, string placementId, string size) { }
+            public void ShowVideoInView(string viewId, string placementId, string media) { }
         }
 
         public abstract class AdViewBase
@@ -471,10 +471,12 @@ namespace PubStar.Io
         public sealed class VideoView : AdViewBase
         {
             private static int _viewIdCounter = 0;
+            private static String _media = null;
 
-            public VideoView(string placementId, AdSize adSize, AdPosition adPosition)
+            public VideoView(string placementId, AdSize adSize, AdPosition adPosition, String media)
                 : base($"pubstar_native_{_viewIdCounter++}", placementId, adSize, adPosition)
             {
+                _media = media;
             }
 
             protected override string GetLogTag() => "PubStar][VideoView";
@@ -482,7 +484,7 @@ namespace PubStar.Io
             protected override void ShowAdsInView(
                 string viewId,
                 string placementId,
-                string sizeValue,
+                string media,
                 Action onLoaded,
                 Action<int> onLoadError,
                 Action onShowed,
@@ -493,7 +495,7 @@ namespace PubStar.Io
                 PubStar.ShowVideoInView(
                     viewId,
                     placementId,
-                    sizeValue,
+                    _media,
                     onLoaded,
                     onLoadError,
                     onShowed,
