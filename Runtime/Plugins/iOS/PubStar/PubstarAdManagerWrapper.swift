@@ -23,18 +23,30 @@ public final class PubstarAdManagerWrapper: NSObject {
         onDone: @escaping () -> Void,
         onError: @escaping (ErrorCode) -> Void
     ) {
-        PubStarAdManager.getInstance()
-            .setInitAdListener(
-                InitAdListenerHandler(
-                    onDone: {
-                        onDone()
-                    },
-                    onError: { errorCode in
-                        onError(errorCode)
-                    }
-                )
-            )
-            .initAd()
+        guard let context = _context else {
+            onError(ErrorCode.NO_INIT)
+            return
+        }
+
+        PubStarAdManager.gatherConsent(
+            from: context,
+            listener: ConsentGatheringCompleteHandler(onComplete: { error in
+                PubStarAdManager.getInstance()
+                    .setIsDebug(isDebug: true)
+                    .setInitAdListener(
+                        InitAdListenerHandler(
+                            onDone: {
+                                onDone()
+                            },
+                            onError: { errorCode in
+                                onError(errorCode)
+                            }
+                        )
+                    )
+                    .initAd()
+
+            })
+        )
     }
 
     public static func loadAd(
@@ -102,7 +114,6 @@ public final class PubstarAdManagerWrapper: NSObject {
         let adNetLoaderListener: AdLoaderListener = AdLoaderHandler {
             onLoaded()
         } onError: { code in
-            print("[Unity Wapper] Error: \(code.rawValue) - \(code)")
             onLoadedError(code)
         }
 
@@ -133,10 +144,8 @@ public final class PubstarAdManagerWrapper: NSObject {
         onLoaded: @escaping () -> Void,
         onHide: @escaping (RewardModel?) -> Void,
         onShowed: @escaping () -> Void,
-        onShowedError: @escaping (ErrorCode) -> Void,
-        customConfig: NativeAdViewBinder? = nil
+        onShowedError: @escaping (ErrorCode) -> Void
     ) {
-        print("[TEST][loadAndShowNativeAd] customConfig: \(String(describing: customConfig))")
         if _context == nil {
             return
         }
@@ -155,30 +164,18 @@ public final class PubstarAdManagerWrapper: NSObject {
             onShowedError(errorCode)
         }
 
-        var adRequest: NativeAdRequest
-        if customConfig != nil {
-            adRequest = NativeAdRequest.Builder(context: _context!)
-                .isAllowLoadNext(isAllowLoadNext)
-                .withView(view)
-                .withNativeAdViewBinderCustom(customConfig!)
-                .sizeType(.Custom)
-                .adLoaderListener(adNetLoaderListener)
-                .adShowedListener(adNetShowListener)
-                .build()
-        } else {
-            adRequest = NativeAdRequest.Builder(context: _context!)
-                .isAllowLoadNext(isAllowLoadNext)
-                .withView(view)
-                .sizeType(size)
-                .adLoaderListener(adNetLoaderListener)
-                .adShowedListener(adNetShowListener)
-                .build()
-        }
+        let request = NativeAdRequest.Builder(context: _context!)
+            .isAllowLoadNext(isAllowLoadNext)
+            .withView(view)
+            .sizeType(size)
+            .adLoaderListener(adNetLoaderListener)
+            .adShowedListener(adNetShowListener)
+            .build()
 
         _pubStarAdController
             .loadAndShow(
                 key: adId,
-                adRequest: adRequest
+                adRequest: request
             )
     }
 
@@ -229,7 +226,7 @@ public final class PubstarAdManagerWrapper: NSObject {
     public static func loadAndShowVideoAd(
         adId: String,
         view: UIView? = nil,
-        media: AVPlayer,
+        media: String,
         onLoaderError: @escaping (ErrorCode) -> Void,
         onLoaded: @escaping () -> Void,
         onHide: @escaping (RewardModel?) -> Void,
@@ -237,7 +234,8 @@ public final class PubstarAdManagerWrapper: NSObject {
         onShowedError: @escaping (ErrorCode) -> Void
 
     ) {
-        if _context == nil {
+        guard _context != nil else {
+            onLoaderError(ErrorCode.INIT_ERROR)
             return
         }
 
@@ -256,17 +254,36 @@ public final class PubstarAdManagerWrapper: NSObject {
         }
 
         let request = IMARequest.Builder(context: _context!)
-            .isAllowCache(true)
             .withView(view)
-            .withMedia(media)
             .adLoaderListener(adNetLoaderListener)
             .adShowedListener(adNetShowListener)
-            .build()
 
-        _pubStarAdController
-            .loadAndShow(
-                key: adId,
-                adRequest: request
+        if media != "" {
+            let player = self.createPlayerVideo(url: media)
+            let _ = request.withMedia(player).withType(
+                IMARequest.IMAType.inStream
             )
+        } else {
+            let _ = request.withType(IMARequest.IMAType.outStream)
+                .withSize(IMARequest.IMASize.medium)
+        }
+
+        _pubStarAdController.loadAndShow(
+            key: adId,
+            adRequest: request.build()
+        )
+    }
+
+    private static func createPlayerVideo(url: String) -> AVPlayer? {
+        guard let url = URL(string: url) else {
+            return nil
+        }
+
+        let player = AVPlayer(url: url)
+        player.isMuted = true
+        player.actionAtItemEnd = .none
+        player.play()
+
+        return player
     }
 }
