@@ -16,6 +16,7 @@ namespace PubStar.Io
         [DllImport("__Internal")] private static extern void pubstar_destroy_ad_view(string viewId);
         [DllImport("__Internal")] private static extern void pubstar_show_banner_in_view(string viewId, string placementId, string size);
         [DllImport("__Internal")] private static extern void pubstar_show_native_in_view(string viewId, string placementId, string size, string customConfig);
+        [DllImport("__Internal")] private static extern void pubstar_show_video_in_view(string viewId, string placementId, string size);
 
         public void Initialize(string gameObjectName) => pubstar_initialize(gameObjectName);
         public void Load(string placementId) => pubstar_load(placementId);
@@ -32,6 +33,9 @@ namespace PubStar.Io
 
         public void ShowNativeInView(string viewId, string placementId, string size, string customConfig)
             => pubstar_show_native_in_view(viewId, placementId, size, customConfig);
+
+        public void ShowVideoInView(string viewId, string placementId, string size)
+            => pubstar_show_video_in_view(viewId, placementId, size);
     }
 }
 #endif

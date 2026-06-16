@@ -10,6 +10,7 @@ public class GameUIController : MonoBehaviour
 
     private string bannerAdID = "1687/99228314074";
     private string nativeAdID = "1687/99228314077";
+    private string videoAdID = "1687/99228314138";
     private string interstitialAdID = "1687/99228314068";
     private string openAdID = "1687/99228314075";
     private string rewardedAdID = "1687/99228314076";
@@ -63,6 +64,25 @@ public class GameUIController : MonoBehaviour
         _native.Show();
     }
 
+    private VideoView _video;
+    private void RenderVideoAds()
+    {
+        _video = new VideoView(
+            videoAdID,
+            AdSize.Large,
+            AdPosition.Bottom
+        );
+        _video.OnLoaded += () =>
+        {
+            Debug.Log($"[GAME] Video Ad was Loaded with id({videoAdID})");
+        };
+        _video.OnShowed += () =>
+        {
+            Debug.Log($"[GAME] Video Ad was Showed with id({videoAdID})");
+        };
+        _video.Show();
+    }
+
     private void OnDestroy()
     {
         if (_banner != null)
@@ -86,7 +106,8 @@ public class GameUIController : MonoBehaviour
             {
                 Debug.Log("[GAME] Pubstar init success");
                 RenderBannerAds();
-                RenderNativeAds();
+                // RenderNativeAds();
+                RenderVideoAds();
             },
             onError: code =>
             {
