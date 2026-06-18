@@ -1,5 +1,4 @@
-using System;
-using System.Threading;
+using System.Threading.Tasks;
 using PubStar.Io;
 using UnityEngine;
 using static PubStar.Io.PubStar;
@@ -8,11 +7,20 @@ public class GameUIController : MonoBehaviour
 {
     private BannerView _banner;
 
-    private string bannerAdID = "1687/99228314074";
-    private string nativeAdID = "1687/99228314077";
-    private string interstitialAdID = "1687/99228314068";
-    private string openAdID = "1687/99228314075";
-    private string rewardedAdID = "1687/99228314076";
+    // private string bannerAdID = "1687/99228314074";
+    // private string nativeAdID = "1687/99228314077";
+    // private string videoAdID = "1687/99228314138";
+    // private string interstitialAdID = "1687/99228314068";
+    // private string openAdID = "1687/99228314075";
+    // private string rewardedAdID = "1687/99228314076";
+
+
+    private string bannerAdID = "1692/99228314092";
+    private string nativeAdID = "1692/99228314093";
+    private string videoAdID = "1692/99228314124";
+    private string interstitialAdID = "1692/99228314089";
+    private string openAdID = "1692/99228314090";
+    private string rewardedAdID = "1692/99228314091";
 
     private void RenderBannerAds()
     {
@@ -34,10 +42,24 @@ public class GameUIController : MonoBehaviour
     private NativeView _native;
     private void RenderNativeAds()
     {
+        var customConfig = new NativeCustomConfig.Builder("AppAdmobNativeCustom")
+                .SetAdvertiserTextViewId("1")
+                .SetIconImageViewId("2")
+                .SetTitleTextViewId("3")
+                .SetMediaContentViewGroupId("4")
+                .SetBodyTextViewId("5")
+                .SetCallToActionButtonId("6")
+                .SetCtaColorHex("#FFFFFF")
+                .SetLoadingViewName("AppShimmerBanner")
+                .Build();
+
+        Debug.Log($"[TEST][RenderNativeAds] customConfig is {customConfig.ToString()}");
         _native = new NativeView(
             nativeAdID,
-            AdSize.Medium,
-            AdPosition.Bottom);
+            AdSize.Large,
+            AdPosition.Bottom,
+            customConfig
+        );
         _native.OnLoaded += () =>
         {
             Debug.Log($"[GAME] Native Ad was Loaded with id({nativeAdID})");
@@ -47,6 +69,26 @@ public class GameUIController : MonoBehaviour
             Debug.Log($"[GAME] Native Ad was Showed with id({nativeAdID})");
         };
         _native.Show();
+    }
+
+    private VideoView _video;
+    private void RenderVideoAds()
+    {
+        _video = new VideoView(
+            videoAdID,
+            AdSize.Large,
+            AdPosition.Bottom,
+            "https://storage.googleapis.com/gvabox/media/samples/stock.mp4"
+        );
+        _video.OnLoaded += () =>
+        {
+            Debug.Log($"[GAME] Video Ad was Loaded with id({videoAdID})");
+        };
+        _video.OnShowed += () =>
+        {
+            Debug.Log($"[GAME] Video Ad was Showed with id({videoAdID})");
+        };
+        _video.Show();
     }
 
     private void OnDestroy()
@@ -68,11 +110,13 @@ public class GameUIController : MonoBehaviour
 
         Debug.Log("[GAME] Calling PubStar.Initialize() at startup");
         PubStar.Io.PubStar.Initialize(
-            onDone: () =>
+            onDone: async () =>
             {
                 Debug.Log("[GAME] Pubstar init success");
+                await Task.Delay(3000);
                 RenderBannerAds();
-                RenderNativeAds();
+                // RenderNativeAds();
+                RenderVideoAds();
             },
             onError: code =>
             {

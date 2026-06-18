@@ -223,8 +223,13 @@ namespace PubStar.Io
 
         private static void ShowNativeInView(
             string viewId, string placementId, string size,
-            Action onLoaded, Action<int> onLoadError,
-            Action onShowed, Action<string> onHidden, Action<int> onShowError)
+            Action onLoaded, 
+            Action<int> onLoadError,
+            Action onShowed, 
+            Action<string> onHidden, 
+            Action<int> onShowError,
+            string customConfig
+        )
         {
             _adCallbacksByViewId[viewId] = new AdCallbacks
             {
@@ -236,9 +241,38 @@ namespace PubStar.Io
             };
 
 #if !UNITY_EDITOR && (UNITY_ANDROID || UNITY_IOS)
-            Native.ShowNativeInView(viewId, placementId, size);
+            Debug.Log($"[TEST][PubStarBridge] ShowNativeInView (Editor) viewId={viewId} customConfig={customConfig}");
+            Native.ShowNativeInView(viewId, placementId, size, customConfig);
 #else
             Debug.Log($"[PubStarBridge] ShowNativeInView (Editor) viewId={viewId}");
+            onLoaded?.Invoke();
+            onShowed?.Invoke();
+#endif
+        }
+
+        private static void ShowVideoInView(
+            string viewId, string placementId, string media,
+            Action onLoaded, 
+            Action<int> onLoadError,
+            Action onShowed, 
+            Action<string> onHidden, 
+            Action<int> onShowError
+        )
+        {
+            _adCallbacksByViewId[viewId] = new AdCallbacks
+            {
+                OnLoaded = onLoaded,
+                OnLoadError = onLoadError,
+                OnShowed = onShowed,
+                OnHidden = onHidden,
+                OnShowError = onShowError
+            };
+
+#if !UNITY_EDITOR && (UNITY_ANDROID || UNITY_IOS)
+            Debug.Log($"[TEST][PubStarBridge] ShowVideoInView (Editor) viewId={viewId}");
+            Native.ShowVideoInView(viewId, placementId, media);
+#else
+            Debug.Log($"[PubStarBridge] ShowVideoInView (Editor) viewId={viewId}");
             onLoaded?.Invoke();
             onShowed?.Invoke();
 #endif
@@ -255,7 +289,8 @@ namespace PubStar.Io
             public void CreateAdView(string viewId, float x, float y, float width, float height, string position) { }
             public void DestroyAdView(string viewId) { }
             public void ShowBannerInView(string viewId, string placementId, string size) { }
-            public void ShowNativeInView(string viewId, string placementId, string size) { }
+            public void ShowNativeInView(string viewId, string placementId, string size, string customConfig) { }
+            public void ShowVideoInView(string viewId, string placementId, string media) { }
         }
 
         public abstract class AdViewBase
@@ -265,6 +300,8 @@ namespace PubStar.Io
             protected readonly AdSize AdSize;
             protected readonly AdPosition AdPosition;
 
+            protected readonly string CustomConfig = null;
+
             private bool _isShown;
 
             public event Action OnLoaded;
@@ -273,12 +310,13 @@ namespace PubStar.Io
             public event Action<string> OnHidden;
             public event Action<int> OnShowError;
 
-            protected AdViewBase(string viewId, string placementId, AdSize adSize, AdPosition adPosition)
+            protected AdViewBase(string viewId, string placementId, AdSize adSize, AdPosition adPosition, string customConfig = null)
             {
                 _viewId = viewId ?? throw new ArgumentNullException(nameof(viewId));
                 PlacementId = placementId;
                 AdSize = adSize;
                 AdPosition = adPosition;
+                CustomConfig = customConfig;
             }
 
             public void Show()
@@ -381,17 +419,25 @@ namespace PubStar.Io
                     onHidden,
                     onShowError
                 );
-                Debug.Log("[PubStar][BannerView][ShowNativeInView] is called");
+                Debug.Log("[PubStar][BannerView][ShowBannerInView] is called");
             }
         }
 
         public sealed class NativeView : AdViewBase
         {
             private static int _viewIdCounter = 0;
+            private static string _customConfig = null;
 
-            public NativeView(string placementId, AdSize adSize, AdPosition adPosition)
+            public NativeView(string placementId, AdSize adSize, AdPosition adPosition, string customConfig = null)
                 : base($"pubstar_native_{_viewIdCounter++}", placementId, adSize, adPosition)
             {
+                Debug.Log($"[TEST] CustomConfig customConfig={customConfig}");
+
+                if (customConfig != null)
+                {
+                    _customConfig = customConfig;
+                }
+                Debug.Log($"[TEST] CustomConfig _customConfig={_customConfig}");
             }
 
             protected override string GetLogTag() => "PubStar][NativeView";
@@ -415,9 +461,48 @@ namespace PubStar.Io
                     onLoadError,
                     onShowed,
                     onHidden,
-                    onShowError
+                    onShowError,
+                    customConfig: _customConfig
                 );
                 Debug.Log("[PubStar][NativeView][ShowNativeInView] is called");
+            }
+        }
+
+        public sealed class VideoView : AdViewBase
+        {
+            private static int _viewIdCounter = 0;
+            private static String _media = null;
+
+            public VideoView(string placementId, AdSize adSize, AdPosition adPosition, String media)
+                : base($"pubstar_video_{_viewIdCounter++}", placementId, adSize, adPosition)
+            {
+                _media = media;
+            }
+
+            protected override string GetLogTag() => "PubStar][VideoView";
+
+            protected override void ShowAdsInView(
+                string viewId,
+                string placementId,
+                string media,
+                Action onLoaded,
+                Action<int> onLoadError,
+                Action onShowed,
+                Action<string> onHidden,
+                Action<int> onShowError
+            )
+            {
+                PubStar.ShowVideoInView(
+                    viewId,
+                    placementId,
+                    _media,
+                    onLoaded,
+                    onLoadError,
+                    onShowed,
+                    onHidden,
+                    onShowError
+                );
+                Debug.Log("[PubStar][VideoView][ShowVideoInView] is called");
             }
         }
     }
