@@ -4,11 +4,13 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.media.MediaPlayer;
 import android.os.Looper;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.util.Consumer;
 
 import io.pubstar.mobile.core.api.PubStarAdManager;
 import io.pubstar.mobile.core.base.BannerAdRequest;
@@ -20,9 +22,6 @@ import io.pubstar.mobile.core.interfaces.InitAdListener;
 import io.pubstar.mobile.core.interfaces.PubStarAdController;
 import io.pubstar.mobile.core.models.ErrorCode;
 import io.pubstar.mobile.core.models.RewardModel;
-import io.pubstar.mobile.core.utils.GoogleMobileAdsConsentManager;
-
-import com.google.android.ump.FormError;
 
 import android.os.Handler;
 import android.util.TypedValue;
@@ -32,6 +31,7 @@ import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
+import android.widget.VideoView;
 
 
 import com.unity3d.player.UnityPlayer;
@@ -667,9 +667,9 @@ public class PubStarUnityBridge {
     public static void showVideoInView(
             String viewId,
             String placementId,
-            String size
+            String media
     ) {
-        Log.d(TAG, "[PubStarUnityBridge][showVideoInView] is called with viewId=" + viewId + ", placementId=" + placementId + ", size=" + size);
+        Log.d(TAG, "[PubStarUnityBridge][showVideoInView] is called with viewId=" + viewId + ", placementId=" + placementId + ", media=" + media);
 
 
         runOnMainThread(() -> {
@@ -692,12 +692,15 @@ public class PubStarUnityBridge {
 
             ViewGroup tempView = sContainers.get(viewId);
 
-            Log.d(TAG, "[PubStarUnityBridge][showVideoInView] tempView is " + tempView.toString());
+            Log.d(TAG, "[PubStarUnityBridge][showVideoInView] tempView is " + tempView);
 
-            IMARequest request = new IMARequest.Builder(appContext)
+            boolean isOutStream = media.trim().isEmpty();
+            Log.d(TAG, "[PubStarUnityBridge][showVideoInView] isOutStream is " + isOutStream);
+
+            IMARequest.Builder request = new IMARequest.Builder(appContext)
                     .withView(tempView)
                     .withSize(IMARequest.Size.Medium)
-                    .withType(IMARequest.Type.OUT_STREAM)
+                    .withType(isOutStream ? IMARequest.Type.IN_STREAM : IMARequest.Type.OUT_STREAM)
                     .adLoaderListener(
                             new AdLoaderListener() {
                                 @Override
@@ -750,16 +753,51 @@ public class PubStarUnityBridge {
                                     pubstarUnitySendMessage("OnPubstarShowError", String.valueOf(errorCode.getCode()));
                                 }
                             }
-                    )
-                    .build();
+                    );
+
+
+            if (tempView != null && !isOutStream) {
+                createVideo(
+                        tempView,
+                        media,
+                        player -> {
+                            request.withMedia(player);
+
+                            adController.loadAndShow(
+                                    placementId,
+                                    request.build()
+                            );
+                        }
+                );
+
+                return;
+            }
 
             adController.loadAndShow(
                     placementId,
-                    request
+                    request.build()
             );
+
         });
     }
 
+    private static void createVideo(ViewGroup nativeView, String mediaPath, Consumer<MediaPlayer> callback) {
+        VideoView videoView = new VideoView(PubStarUnityBridge.appContext);
+        nativeView.removeAllViews();
+        nativeView.addView(videoView);
+
+        videoView.setVideoPath(mediaPath);
+        videoView.setOnCompletionListener(mp -> {
+            nativeView.removeAllViews();
+        });
+
+        videoView.setOnPreparedListener(mp -> {
+            mp.setLooping(false);
+            videoView.start();
+
+            callback.accept(mp);
+        });
+    }
 
     public static void destroyAdView(String viewId) {
         if (viewId == null || viewId.trim().isEmpty()) {
