@@ -12,6 +12,7 @@ import androidx.annotation.Nullable;
 
 import io.pubstar.mobile.core.api.PubStarAdManager;
 import io.pubstar.mobile.core.base.BannerAdRequest;
+import io.pubstar.mobile.core.base.IMARequest;
 import io.pubstar.mobile.core.base.NativeAdRequest;
 import io.pubstar.mobile.core.interfaces.AdLoaderListener;
 import io.pubstar.mobile.core.interfaces.AdShowedListener;
@@ -662,6 +663,103 @@ public class PubStarUnityBridge {
             );
         });
     }
+
+    public static void showVideoInView(
+            String viewId,
+            String placementId,
+            String size
+    ) {
+        Log.d(TAG, "[PubStarUnityBridge][showVideoInView] is called with viewId=" + viewId + ", placementId=" + placementId + ", size=" + size);
+
+
+        runOnMainThread(() -> {
+            if (appContext == null) {
+                Log.e(TAG, "[PubStarUnityBridge][showVideoInView] currentActivity is null");
+
+                pubstarUnitySendMessage("OnPubstarLoadError", "context is null");
+                return;
+            }
+
+            Log.d(TAG, "[PubStarUnityBridge][showVideoInView] sContainers is " + sContainers.size());
+            Log.d(TAG, "[PubStarUnityBridge][showVideoInView] viewId is " + viewId);
+
+            if (!sContainers.containsKey(viewId)) {
+                Log.d(TAG, "[PubStarUnityBridge][showVideoInView] not container key: " + viewId);
+
+                pubstarUnitySendMessage("OnPubstarLoadError", "view is null");
+                return;
+            }
+
+            ViewGroup tempView = sContainers.get(viewId);
+
+            Log.d(TAG, "[PubStarUnityBridge][showVideoInView] tempView is " + tempView.toString());
+
+            IMARequest request = new IMARequest.Builder(appContext)
+                    .withView(tempView)
+                    .withSize(IMARequest.Size.Medium)
+                    .withType(IMARequest.Type.OUT_STREAM)
+                    .adLoaderListener(
+                            new AdLoaderListener() {
+                                @Override
+                                public void onLoaded() {
+                                    Log.d(TAG, "[PubStarUnityBridge][showVideoInView][adLoaderListener][onLoaded] is called");
+
+                                    pubstarUnitySendMessage("OnPubstarLoaded", viewId);
+                                }
+
+                                @Override
+                                public void onError(@NonNull ErrorCode errorCode) {
+                                    Log.e(TAG, "[PubStarUnityBridge][showVideoInView][adLoaderListener][onError] error with name: " + errorCode.name() + ", code: " + errorCode.getCode());
+
+                                    pubstarUnitySendMessage("OnPubstarLoadError", String.valueOf(errorCode.getCode()));
+                                }
+                            }
+                    )
+                    .adShowedListener(
+                            new AdShowedListener() {
+                                @Override
+                                public void onAdShowed() {
+                                    Log.d(TAG, "[PubStarUnityBridge][showVideoInView][AdShowedListener][onAdShowed] is called");
+
+                                    pubstarUnitySendMessage("OnPubstarAdShowed", viewId);
+                                }
+
+                                @Override
+                                public void onAdHide(@Nullable RewardModel rewardModel) {
+
+                                    String reward = "{}";
+                                    if (rewardModel != null) {
+                                        Log.d(TAG, "[PubStarUnityBridge][showVideoInView][AdShowedListener][onAdHide] reward has type: " + rewardModel.getType() + ", amount: " + rewardModel.getAmount());
+                                        Log.d(TAG, "[PubStarUnityBridge][loadAndShow][onAdHide] is called with rewardModel: "
+                                                + rewardModel.getType() + "|" + rewardModel.getAmount());
+                                        reward = "{ \"type\": "
+                                                + String.valueOf(rewardModel.getType()) +
+                                                ", \"amount\": " + String.valueOf(rewardModel.getAmount())
+                                                + " }";
+                                    } else {
+                                        Log.d(TAG, "[PubStarUnityBridge][loadAndShow][onAdHide] is called with rewardModel");
+                                    }
+
+                                    pubstarUnitySendMessage("OnPubstarAdHidden", reward);
+                                }
+
+                                @Override
+                                public void onError(@NonNull ErrorCode errorCode) {
+                                    Log.e(TAG, "[PubStarUnityBridge][showVideoInView][AdShowedListener][onError] error with name: " + errorCode.name() + ", code: " + errorCode.getCode());
+
+                                    pubstarUnitySendMessage("OnPubstarShowError", String.valueOf(errorCode.getCode()));
+                                }
+                            }
+                    )
+                    .build();
+
+            adController.loadAndShow(
+                    placementId,
+                    request
+            );
+        });
+    }
+
 
     public static void destroyAdView(String viewId) {
         if (viewId == null || viewId.trim().isEmpty()) {

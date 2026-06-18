@@ -1,5 +1,6 @@
 using System;
 using System.Threading;
+using System.Threading.Tasks;
 using PubStar.Io;
 using UnityEngine;
 using static PubStar.Io.PubStar;
@@ -8,12 +9,20 @@ public class GameUIController : MonoBehaviour
 {
     private BannerView _banner;
 
-    private string bannerAdID = "1687/99228314074";
-    private string nativeAdID = "1687/99228314077";
-    private string videoAdID = "1687/99228314138";
-    private string interstitialAdID = "1687/99228314068";
-    private string openAdID = "1687/99228314075";
-    private string rewardedAdID = "1687/99228314076";
+    // private string bannerAdID = "1687/99228314074";
+    // private string nativeAdID = "1687/99228314077";
+    // private string videoAdID = "1687/99228314138";
+    // private string interstitialAdID = "1687/99228314068";
+    // private string openAdID = "1687/99228314075";
+    // private string rewardedAdID = "1687/99228314076";
+
+
+    private string bannerAdID = "1692/99228314092";
+    private string nativeAdID = "1692/99228314093";
+    private string videoAdID = "1692/99228314124";
+    private string interstitialAdID = "1692/99228314089";
+    private string openAdID = "1692/99228314090";
+    private string rewardedAdID = "1692/99228314091";
 
     private void RenderBannerAds()
     {
@@ -103,9 +112,10 @@ public class GameUIController : MonoBehaviour
 
         Debug.Log("[GAME] Calling PubStar.Initialize() at startup");
         PubStar.Io.PubStar.Initialize(
-            onDone: () =>
+            onDone: async () =>
             {
                 Debug.Log("[GAME] Pubstar init success");
+                await Task.Delay(3000);
                 RenderBannerAds();
                 // RenderNativeAds();
                 RenderVideoAds();
