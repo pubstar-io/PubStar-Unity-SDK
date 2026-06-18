@@ -474,7 +474,7 @@ namespace PubStar.Io
             private static String _media = null;
 
             public VideoView(string placementId, AdSize adSize, AdPosition adPosition, String media)
-                : base($"pubstar_native_{_viewIdCounter++}", placementId, adSize, adPosition)
+                : base($"pubstar_video_{_viewIdCounter++}", placementId, adSize, adPosition)
             {
                 _media = media;
             }
