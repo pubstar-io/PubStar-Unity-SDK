@@ -137,8 +137,10 @@ The example app in this repository shows an example usage of every single API, c
 | [Load()](#loadad)                 | `Function<void>` |
 | [Show()](#showad)                 | `Function<void>` |
 | [LoadAndShow()](#loadandshow)     | `Function<void>` |
-| [BannerView](#pubstaradview)      | `Class`          |
-| [NativeView](#pubstarvideoadview) | `Class`          |
+| [BannerView](#pubstar-banner-ads)              | `Class` |
+| [NativeView](#pubstar-native-ads)              | `Class` |
+| [NativeView (Custom)](#pubstar-custom-native-ads) | `Class` |
+| [VideoView](#pubstar-video-ads-ima)            | `Class` |
 
 ### Initialize()
 
@@ -273,7 +275,7 @@ banner.Show();
 
 ### PubStar Native Ads
 
-Load video ad then show video ad, using for Video ad.
+Load ad then show ad, using for Native ad.
 
 #### API
 
@@ -301,6 +303,79 @@ native.OnShowed += () =>
     Debug.Log("[GAME] Native Ad was Showed");
 };
 native.Show();
+```
+
+### PubStar Custom Native Ads
+
+Render a Native ad with **your own layout** instead of the default template. Build the layout natively (Android XML / iOS view), map your view IDs to the ad fields with `NativeCustomConfig.Builder`, then pass the result to `NativeView`.
+
+#### NativeCustomConfig.Builder
+
+| Method                              | Function                                                                  |
+| ----------------------------------- | ------------------------------------------------------------------------- |
+| `Builder(layoutName)`               | name of your native layout (Android XML layout name / iOS view identifier) |
+| `SetAdvertiserTextViewId(id)`       | view id for the advertiser name text                                      |
+| `SetIconImageViewId(id)`            | view id for the advertiser icon image                                     |
+| `SetTitleTextViewId(id)`            | view id for the headline / title text                                     |
+| `SetMediaContentViewGroupId(id)`    | view id for the media content container                                   |
+| `SetBodyTextViewId(id)`             | view id for the body / description text                                   |
+| `SetCallToActionButtonId(id)`       | view id for the call-to-action button                                     |
+| `SetLoadingViewName(name)`          | name of the loading / shimmer view shown while the ad loads               |
+| `SetCtaColorHex(hex)`               | hex color for the call-to-action button (e.g. `#FFFFFF`)                  |
+| `Build()`                           | returns the config as a JSON string to pass to `NativeView`               |
+
+#### Example
+
+```C#
+string customConfig = new NativeCustomConfig.Builder("pubstar_admob_native_big")
+    .SetAdvertiserTextViewId("ad_advertiser")
+    .SetIconImageViewId("ad_logo")
+    .SetTitleTextViewId("ad_headline")
+    .SetMediaContentViewGroupId("ad_media")
+    .SetBodyTextViewId("ad_body")
+    .SetCallToActionButtonId("ad_call_to_action")
+    .SetLoadingViewName("pubstar_shimmer_native_big")
+    .SetCtaColorHex("#FFFFFF")
+    .Build();
+
+NativeView native = new NativeView(
+    nativeAdID,
+    AdSize.Medium,
+    AdPosition.Bottom,
+    customConfig);
+native.OnLoaded += () => Debug.Log("[GAME] Custom Native Ad was Loaded");
+native.OnShowed += () => Debug.Log("[GAME] Custom Native Ad was Showed");
+native.Show();
+```
+
+> The view IDs/layout name must match native resources in your exported app. The media view must be a container (ViewGroup / UIView) — the SDK injects the network's media view into it.
+
+### PubStar Video Ads (IMA)
+
+Load and show a Video (IMA) ad. Pass the content video URL via `media` when creating a `VideoView`.
+
+#### API
+
+| Props         | Function                                                                                                            |
+| ------------- | ------------------------------------------------------------------------------------------------------------------- |
+| `media`       | URL of the media video to play                                                                                      |
+| `onLoaded`    | call when ad loaded                                                                                                 |
+| `onLoadError` | call when load ad failed. return Error code                                                                         |
+| `onShowed`    | call when ad showed                                                                                                 |
+| `onHidden`    | call when ad hidden/closed (supports rewarded ads). Returns detailed `PubstarReward` JSON string (`type`, `amount`).|
+| `onShowError` | call when show ad failed. return Error code                                                                         |
+
+#### Example
+
+```C#
+VideoView video = new VideoView(
+    videoAdID,
+    AdSize.Large,
+    AdPosition.Center,
+    media: "https://storage.googleapis.com/gvabox/media/samples/stock.mp4");
+video.OnLoaded += () => Debug.Log("[GAME] Video Ad was Loaded");
+video.OnShowed += () => Debug.Log("[GAME] Video Ad was Showed");
+video.Show();
 ```
 
 ## Release Notes

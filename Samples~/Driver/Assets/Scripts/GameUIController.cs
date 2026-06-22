@@ -7,20 +7,20 @@ public class GameUIController : MonoBehaviour
 {
     private BannerView _banner;
 
-    // private string bannerAdID = "1687/99228314074";
-    // private string nativeAdID = "1687/99228314077";
-    // private string videoAdID = "1687/99228314138";
-    // private string interstitialAdID = "1687/99228314068";
-    // private string openAdID = "1687/99228314075";
-    // private string rewardedAdID = "1687/99228314076";
+    private string bannerAdID = "1277/99228313841";
+    private string nativeAdID = "1277/99228313830";
+    private string videoAdID = "1687/99228314138";
+    private string interstitialAdID = "1277/99228313850";
+    private string openAdID = "1277/99228313844";
+    private string rewardedAdID = "1687/99228314076";
 
 
-    private string bannerAdID = "1692/99228314092";
-    private string nativeAdID = "1692/99228314093";
-    private string videoAdID = "1692/99228314124";
-    private string interstitialAdID = "1692/99228314089";
-    private string openAdID = "1692/99228314090";
-    private string rewardedAdID = "1692/99228314091";
+    // private string bannerAdID = "1264/99228313741";
+    // private string nativeAdID = "1264/99228313724";
+    // private string videoAdID = "1692/99228314124";
+    // private string interstitialAdID = "1264/99228313740";
+    // private string openAdID = "1264/99228313722";
+    // private string rewardedAdID = "1692/99228314091";
 
     private void RenderBannerAds()
     {
@@ -114,8 +114,8 @@ public class GameUIController : MonoBehaviour
             {
                 Debug.Log("[GAME] Pubstar init success");
                 await Task.Delay(3000);
-                RenderBannerAds();
-                // RenderNativeAds();
+                // RenderBannerAds();
+                RenderNativeAds();
                 RenderVideoAds();
             },
             onError: code =>

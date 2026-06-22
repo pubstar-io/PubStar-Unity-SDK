@@ -21,7 +21,7 @@ namespace PubStar.Editor
             try
             {
                 var gradleRoot = ResolveGradleRoot(path);
-                UnityEngine.Debug.LogError("[PubStar][AndroidPostprocess] OnPostGenerateGradleAndroidProject: " + gradleRoot);
+                UnityEngine.Debug.Log("[PubStar][AndroidPostprocess] OnPostGenerateGradleAndroidProject: " + gradleRoot);
                 // PatchSettingsGradle(gradleRoot);
                 PatchAndroidManifest(gradleRoot);
             }
