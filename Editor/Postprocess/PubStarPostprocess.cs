@@ -93,7 +93,7 @@ public static class PubStarPodPostprocess
             "We use your data to show personalized ads and improve your experience."
         );
 
-        root.SetString("io.pubstar.key", "pub-app-id-1687");
+        root.SetString("io.pubstar.key", "pub-app-id-1277");
 
         root.SetString(
             "GADApplicationIdentifier",

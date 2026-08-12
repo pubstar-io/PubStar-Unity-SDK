@@ -8,6 +8,19 @@ PubStar SDK Unity
 
 All notable changes to this project will be documented in this file.
 
+### [1.6.1] - 2026-06-09
+
+- Fixed iOS initialization ignoring the app's `io.pubstar.key` from `Info.plist`. The iOS bridge forced `setIsDebug(true)`, which made the native SDK initialize with the built-in debug App ID instead of the publisher's real App ID, so the init config never matched the app's ad unit IDs.
+
+### [1.6.0] - 2026-06-18
+
+- **Custom Native** — render native ads with your own layout via `NativeCustomConfig.Builder` (pass the result to `NativeView`).
+- **Video (IMA)** — show video ads via `VideoView` with a `media` URL (in/out-stream through Google IMA).
+- **PubStar Mediation** — run PubStar as a network inside Google AdMob and AppLovin MAX.
+- **Firebase / GA4 ad-revenue reporting** — per-impression value/currency events to support ROAS campaigns (requires Firebase Analytics in the host app).
+- Updated README with full Usage guide (Initialize / Load / Show / LoadAndShow, Banner, Native, Custom Native, Video IMA) aligned with the Android and iOS SDKs.
+- Fixed Android post-process incorrectly logging an informational message via `Debug.LogError`, which caused the build to be reported as failed.
+
 ### [1.5.0] - 2026-01-22
 
 - **OpenRTB (ORTB) Bidding Adapter**

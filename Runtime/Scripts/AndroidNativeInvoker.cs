@@ -59,10 +59,17 @@ namespace PubStar.Io
 #endif
         }
 
-        public void ShowNativeInView(string viewId, string placementId, string size)
+        public void ShowNativeInView(string viewId, string placementId, string size, string customConfig)
         {
 #if !UNITY_EDITOR
-            Cls.CallStatic("showNativeInView", viewId, placementId, size);
+            Cls.CallStatic("showNativeInView", viewId, placementId, size, customConfig);
+#endif
+        }
+
+        public void ShowVideoInView(string viewId, string placementId, string media)
+        {
+#if !UNITY_EDITOR
+            Cls.CallStatic("showVideoInView", viewId, placementId, media);
 #endif
         }
     }
