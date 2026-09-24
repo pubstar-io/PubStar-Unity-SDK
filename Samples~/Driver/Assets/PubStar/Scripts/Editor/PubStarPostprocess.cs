@@ -8,7 +8,7 @@ using UnityEditor.iOS.Xcode;
 public static class PubStarPodPostprocess
 {
     private const string PodName = "Pubstar";
-    private const string PodVersion = "'~> 1.6.0'";
+    private const string PodVersion = "'~> 1.6.2'";
     private static readonly string[] SkAdNetworkIds =
     {
         "cstr6suwn9.skadnetwork",
@@ -93,12 +93,23 @@ public static class PubStarPodPostprocess
             "We use your data to show personalized ads and improve your experience."
         );
 
-        root.SetString("io.pubstar.key", "Your PubStar app ID");
+        // Placeholders only. SetString overwrites, and this runs on every iOS build —
+        // including "Append" builds into an Xcode project where the publisher has
+        // already put their real PubStar key and AdMob app ID into Info.plist. Only
+        // fill the keys in when they are missing (the Android postprocess already
+        // leaves existing meta-data alone).
+        if (!root.values.ContainsKey("io.pubstar.key"))
+        {
+            root.SetString("io.pubstar.key", "Your PubStar app ID");
+        }
 
-        root.SetString(
-            "GADApplicationIdentifier",
-            "ca-app-pub-3940256099942544~1458002511"
-        );
+        if (!root.values.ContainsKey("GADApplicationIdentifier"))
+        {
+            root.SetString(
+                "GADApplicationIdentifier",
+                "ca-app-pub-3940256099942544~1458002511"
+            );
+        }
 
         // 2. SKAdNetworkItems
         PlistElement skAdElement;
