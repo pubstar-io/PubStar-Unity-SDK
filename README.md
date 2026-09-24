@@ -104,6 +104,8 @@ Open `AndroidManifest.xml` and add inside `<application>`:
 
 Replace pub-app-id-XXXX with your actual [PubStar App ID](https://pubstar.io/).
 
+> **The key is required on both platforms.** If `io.pubstar.key` is missing or empty, initialization stops: Android throws `IllegalStateException`, and from **1.6.2** iOS does the same. Earlier iOS versions silently fell back to a built-in debug App ID, so a misconfigured app kept running while every report it sent went to the wrong app.
+
 ## Usage
 
 ### Initialize the SDK
@@ -383,6 +385,8 @@ video.Show();
 See the [CHANGELOG.md](https://github.com/pubstar-io/PubStar-Unity-SDK/blob/main/CHANGELOG.md).
 
 ## ID Test AD
+
+Test IDs only: these placements belong to the PubStar test app `pub-app-id-1233`. Replace the App ID **and** every placement ID with your own before shipping — an app released with the test App ID sends all of its reports to the test app.
 
 ```C#
 App ID : pub-app-id-1233

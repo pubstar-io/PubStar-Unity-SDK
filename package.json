@@ -1,6 +1,6 @@
 {
   "name": "io.pubstar.unity",
-  "version": "1.6.1",
+  "version": "1.6.2",
   "displayName": "PubStar SDK",
   "description": "Ads SDK for Unity (iOS/Android).",
   "unity": "2021.3",

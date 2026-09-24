@@ -35,7 +35,9 @@ jobs:
       - name: Check if Tag exists
         id: check_tag
         env:
-          GITHUB_TOKEN: ${{ secrets.RELEASE_SDK_IOS }}
+          # RELEASE_SDK_IOS is not a secret of this repository; github.token has
+          # read access to it, and does not depend on the runner's own gh login.
+          GH_TOKEN: ${{ github.token }}
         run: |
           TAG_NAME="${{ steps.pkg.outputs.tag }}"
           REMOTE_REPO="pubstar-io/PubStar-Unity-SDK"
@@ -61,12 +63,42 @@ jobs:
 
       - name: Build .unitypackage via Driver project
         if: steps.check_tag.outputs.exists == 'false'
+        # Assets/PubStar holds only the C# layer. The native bridges the C# calls into
+        # — the Android library with PubStarUnityBridge.java and the gradle dependency
+        # on io.pubstar.mobile:ads, and the iOS PubstarUnityBridge.mm / Swift wrapper —
+        # live under Assets/Plugins. Exporting Assets/PubStar alone shipped packages
+        # (1.5.0, 1.6.0, 1.6.1) with no native code at all: AndroidNativeInvoker's
+        # Java class did not exist and the iOS DllImport symbols could not link.
         run: |
           "${{ steps.unity.outputs.bin }}" \
             -batchmode -nographics -quit \
             -projectPath "Samples~/Driver" \
-            -exportPackage "Assets/PubStar" "$GITHUB_WORKSPACE/PubStar.unitypackage" \
+            -exportPackage "Assets/PubStar" "Assets/Plugins/Android/PubStar.androidlib" "Assets/Plugins/iOS/PubStar" "$GITHUB_WORKSPACE/PubStar.unitypackage" \
             -logFile -
+
+      - name: Verify package contents
+        if: steps.check_tag.outputs.exists == 'false'
+        # Fail the release rather than publish a package that cannot work. Three
+        # releases went out without native code because nothing looked inside.
+        run: |
+          rm -rf pkgcheck && mkdir pkgcheck
+          tar -xzf "$GITHUB_WORKSPACE/PubStar.unitypackage" -C pkgcheck
+          for d in pkgcheck/*/; do
+            if [ -f "$d/asset" ]; then head -n 1 "$d/pathname" | tr -d '\r'; echo; fi
+          done | sed '/^$/d' | sort > pkgcontents.txt
+          cat pkgcontents.txt
+          for required in \
+            "Assets/PubStar/Scripts/Runtime/PubStar.cs" \
+            "Assets/Plugins/Android/PubStar.androidlib/build.gradle" \
+            "Assets/Plugins/Android/PubStar.androidlib/src/main/java/io/pubstar/unity/PubStarUnityBridge.java" \
+            "Assets/Plugins/iOS/PubStar/PubstarUnityBridge.mm" \
+            "Assets/Plugins/iOS/PubStar/PubstarAdManagerWrapper.swift"; do
+            if ! grep -qxF "$required" pkgcontents.txt; then
+              echo "::error::$required is missing from PubStar.unitypackage"
+              exit 1
+            fi
+          done
+          echo "All native bridges are in the package."
 
       - name: Zip project source code using git
         id: zip_step
@@ -89,4 +121,4 @@ jobs:
             PubStar.unitypackage
             ${{ steps.zip_step.outputs.zip_file }}
         env:
-          GITHUB_TOKEN: ${{ secrets.RELEASE_SDK_IOS }}
+          GITHUB_TOKEN: ${{ github.token }}
